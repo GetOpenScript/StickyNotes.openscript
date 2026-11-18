@@ -59,7 +59,7 @@ Notes are stored in the `sticky_note` table. On first write the script defines t
 | `collapsed` | Whether the note is collapsed to its title strip |
 | `created`, `updated` | Set by SurrealDB |
 
-Requests go straight from the browser to your `SURREAL_URL` through `OpenScript.fetch` (HTTP `/rpc` with Basic auth) and nowhere else. Values are sent as escaped SurrealQL literals rather than RPC variables. SurrealDB's JSON-RPC would otherwise turn text like `todo: buy milk` into the record link `todo:buy`.
+Requests go straight from the browser to your `SURREAL_URL` through `OpenScript.fetch` (HTTP `/rpc` with Basic auth) and nowhere else. Values are sent as escaped SurrealQL literals rather than RPC variables. SurrealDB's JSON-RPC would otherwise turn text like `todo: buy milk` into the record link `todo:buy`. Tested on SurrealDB `2.6.5`, `3.3.5` and `4.0.1`.
 
 #### Limitations
 - Pages that scroll an inner container instead of the window (some web apps) keep notes fixed to the viewport.

@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Sticky Notes
-// @version      1.0.0
+// @version      1.0.1
 // @description  Classic sticky notes on any webpage, pinned to the exact URL and synced to your own SurrealDB.
 // @match        *://*/*
 // @run-at       document_start
@@ -25,6 +25,8 @@ const COLORS = {
 // Values are inlined as escaped SurrealQL literals instead of RPC variables: SurrealDB's JSON-RPC
 // coerces strings that start like a record id, so a note reading "todo: buy milk" would be stored as todo:buy.
 const lit = v => JSON.stringify(v, (k, x) => typeof x === 'string' ? x.toWellFormed() : x);
+// A literal record id, because the function that builds one is type::thing() in SurrealDB 2 and type::record() from 3 on
+const rid = id => `${TB}:\`${`${id}`.replace(/[\\`]/g, '\\$&')}\``;
 const Q = {
   schema: `DEFINE TABLE IF NOT EXISTS ${TB} SCHEMALESS;
     DEFINE FIELD IF NOT EXISTS created ON ${TB} TYPE datetime DEFAULT time::now() READONLY;
@@ -33,8 +35,8 @@ const Q = {
   page: url => `SELECT *, record::id(id) AS id FROM ${TB} WHERE url = ${lit(url)} ORDER BY created`,
   pages: `array::distinct((SELECT VALUE url FROM ${TB}))`,
   all: `SELECT *, record::id(id) AS id FROM ${TB} ORDER BY updated DESC LIMIT 2000`,
-  upsert: (id, data) => `UPSERT type::thing('${TB}', ${lit(id)}) MERGE ${lit(data)} RETURN NONE`,
-  delete: id => `DELETE type::thing('${TB}', ${lit(id)})`,
+  upsert: (id, data) => `UPSERT ${rid(id)} MERGE ${lit(data)} RETURN NONE`,
+  delete: id => `DELETE ${rid(id)}`,
 };
 const FONT = `ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif`;
 const CSS = `
